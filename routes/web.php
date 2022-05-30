@@ -49,3 +49,13 @@ Route::get("/callback", function (Request $request) {
     ]);
     return $response->json();
 });
+
+//fetch data oauth2 from sso server, pass the access token in header
+Route::get("/authuser", function() {
+    $access_token = "";
+    $response = Http::withHeaders([
+        "Accept" => "application/json",
+        "Authorization" => "Bearer " . $access_token
+    ])->get("http://127.0.0.1:8000/api/user");
+    return $response->json();
+});

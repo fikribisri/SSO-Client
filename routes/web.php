@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-Route::get('/', function () {
+Route::get('/', function(Request $request) {
     return view('welcome');
 });
 //add routing for SSO
@@ -33,7 +33,7 @@ Route::get("/login", function(Request $request){
 });
 
 //add routing for go back to main app
-Route::get("/callback", function (Request $request) {
+Route::get("/callback", function(Request $request) {
     $state = $request->session()->pull("state");
 
     throw_unless(strlen($state) > 0 && $state == $request->state, InvalidArgumentException::class);
@@ -47,12 +47,13 @@ Route::get("/callback", function (Request $request) {
         "redirect_uri" => "http://127.0.0.1:8080/callback",
         "code" => $request->code
     ]);
-    return $response->json();
+    $request->session()->put($response->json());
+    return redirect("/authuser");
 });
 
 //fetch data oauth2 from sso server, pass the access token in header
-Route::get("/authuser", function() {
-    $access_token = "";
+Route::get("/authuser", function(Request $request) {
+    $access_token = $request->session()->get("access_token");
     $response = Http::withHeaders([
         "Accept" => "application/json",
         "Authorization" => "Bearer " . $access_token

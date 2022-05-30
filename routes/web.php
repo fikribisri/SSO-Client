@@ -36,12 +36,12 @@ Route::get("/login", function(Request $request){
 Route::get("/callback", function (Request $request) {
     $state = $request->session()->pull("state");
 
-    throw_unless(strlen($state) > 0 && $state == $request->$state, InvalidArgumentException::class);
+    throw_unless(strlen($state) > 0 && $state == $request->state, InvalidArgumentException::class);
 
     $response = Http::asForm()->post(
     "http://127.0.0.1:8000/oauth/token",
     [
-        "grant_type" => "autorization_code",
+        "grant_type" => "authorization_code",
         "client_id" => "9665cac8-b591-454a-8a72-2f6078545ed3",
         "client_secret" => "zMU5jD9lCsX7xhYKblrnZu8NHZmrawP1VugfVScI",
         "redirect_uri" => "http://127.0.0.1:8080/callback",

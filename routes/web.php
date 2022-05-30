@@ -26,7 +26,7 @@ Route::get("/login", function(Request $request){
         "client_id" => "9665cac8-b591-454a-8a72-2f6078545ed3",
         "redirect_uri" => "http://127.0.0.1:8080/callback", //calling the sso-auth
         "response_type" => "code",
-        "scope" => "",
+        "scope" => "view-user",
         "state" => $state
     ]);
     return redirect("http://127.0.0.1:8000/oauth/authorize?" . $query); //return to main app

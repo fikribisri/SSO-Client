@@ -16,13 +16,13 @@ class SSOController extends Controller
     {
         $request->session()->put("state", $state = Str::random(40));
         $query = http_build_query([
-            "client_id" => "9665cac8-b591-454a-8a72-2f6078545ed3",
-            "redirect_uri" => "http://127.0.0.1:8080/callback", //calling the sso-auth
+            "client_id" => config("auth.client_id"),
+            "redirect_uri" => config("auth.callback"), //calling the sso-auth
             "response_type" => "code",
-            "scope" => "view-user",
+            "scope" => config("auth.scopes"),
             "state" => $state
         ]);
-        return redirect("http://127.0.0.1:8000/oauth/authorize?" . $query); //return to main app
+        return redirect(config("auth.sso_host") . "/oauth/authorize?" . $query); //return to main app
     }
     //function getCallback
     public function getCallback(Request $request)
@@ -32,12 +32,12 @@ class SSOController extends Controller
         throw_unless(strlen($state) > 0 && $state == $request->state, InvalidArgumentException::class);
 
         $response = Http::asForm()->post(
-            "http://127.0.0.1:8000/oauth/token",
+            config("auth.sso_host") . "/oauth/token",
             [
                 "grant_type" => "authorization_code",
-                "client_id" => "9665cac8-b591-454a-8a72-2f6078545ed3",
-                "client_secret" => "zMU5jD9lCsX7xhYKblrnZu8NHZmrawP1VugfVScI",
-                "redirect_uri" => "http://127.0.0.1:8080/callback",
+                "client_id" => config("auth.client_id"),
+                "client_secret" => config("auth.client_secret"),
+                "redirect_uri" => config("auth.callback"),
                 "code" => $request->code
             ]
         );
@@ -51,7 +51,7 @@ class SSOController extends Controller
         $response = Http::withHeaders([
             "Accept" => "application/json",
             "Authorization" => "Bearer " . $access_token
-        ])->get("http://127.0.0.1:8000/api/user");
+        ])->get(config("auth.sso_host") . "/api/user");
         //fetching/creating users for login into the application
         $userArray= $response->json();
         try {
